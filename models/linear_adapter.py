@@ -108,3 +108,19 @@ class AdaptingMLP(nn.Module):
         return[layer.get_b() for layer in self.adapting_layers] + [self.output_layer.bias.detach().numpy()]
         
 
+class linearNN(nn.Module):
+    def __init__(self, input_dim, hidden_layers, output_dim):
+        super(linearNN, self).__init__()
+        layers=[]
+        prev_dim = input_dim
+        for hidden_dim in hidden_layers:
+            linear_layer = nn.Linear(prev_dim, hidden_dim)
+            layers.append(linear_layer)
+            #layers.append(nn.ReLU())
+            prev_dim = hidden_dim
+        self.layers = nn.Sequential(*layers)
+        self.output_layer = nn.Linear(prev_dim, output_dim)
+    def forward(self, x):
+        x = self.layers(x)
+        x = self.output_layer(x.to(torch.float64))
+        return x

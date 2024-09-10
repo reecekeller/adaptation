@@ -3,21 +3,40 @@ import matplotlib.pyplot as plt
 from scipy.linalg import expm
 
 # Define the true system dynamics
+# def dynamics(initial_state, t_space, A, dt, var_x, var_z):
+#     N = len(t_space)
+#     x = np.zeros((N, 3))
+#     #z = np.random.normal(0, var_z, N) # cgeck implementation 
+#     x[0] = initial_state
+#     #x[0] = initial_state[0][0:2]
+#     #z[0] = initial_state[0][-1]
+
+#     for i in range(N-1):    
+#         x_noise = np.random.normal(0, var_x)
+#         v_noise = np.random.normal(0, var_x)
+#         z_noise = np.random.normal(0, var_z)
+#         state_noise = np.array([x_noise, v_noise, z_noise])
+#         x[i+1] = A @ x[i] * dt + x[i] + state_noise
+#     #state_vec = np.column_stack((x, z))
+#     return x
+
 def dynamics(initial_state, t_space, A, dt, var_x, var_z):
     N = len(t_space)
     x = np.zeros((N, 3))
-    #z = np.random.normal(0, var_z, N) # cgeck implementation 
-    x[0] = initial_state
-    #x[0] = initial_state[0][0:2]
-    #z[0] = initial_state[0][-1]
-
-    for i in range(N-1):    
-        x_noise = np.random.normal(0, var_x)
-        v_noise = np.random.normal(0, var_x)
-        z_noise = np.random.normal(0, var_z)
-        state_noise = np.array([x_noise, v_noise, z_noise])
-        x[i+1] = A @ x[i] * dt + x[i] + state_noise
-    #state_vec = np.column_stack((x, z))
+    x[0] = initial_state.flatten()  # Ensure initial state is a 1D array
+    
+    for i in range(N-1):
+        # Calculate state update
+        x[i+1] = A @ x[i] * dt + x[i]  # Discrete-time update
+        
+        # Add noise
+        x_noise = np.random.normal(0, var_x, 2)  # Noise for state variables x and v
+        z_noise = np.random.normal(0, var_z)    # Noise for z
+        
+        # Apply noise to the state
+        x[i+1][:2] += x_noise  # Apply noise to x and v
+        x[i+1][2] += z_noise   # Apply noise to z
+    
     return x
 
 def observations(H, states, var_y):
