@@ -11,11 +11,11 @@ t_space = np.arange(0, T, dt)
 # Noise Parameters
 var_x = 0.1
 var_z = 0.2
-var_y = 0.1
+var_y = 0.15
 
 # Define and Simulate System Dynamics
 A = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 0.01]])
-H = np.array([1.0, 1.0, 1.0]).reshape((1, 3))
+H = np.array([3.0, 0.0, 0.5]).reshape((1, 3))
 Q = np.diag([var_x, var_x, var_z])
 R = np.array([[var_y]])
 
@@ -66,8 +66,8 @@ input_dim = window_size
 hidden_layers = [2]
 output_dim = 1
 
-learning_rate = 0.01
-num_epochs = 5000
+learning_rate = 0.001
+num_epochs = 1000
 
 linear_model = AdaptingMLP(input_dim, hidden_layers, output_dim)
 ff_model = linearNN(input_dim, hidden_layers, output_dim)
@@ -106,14 +106,17 @@ print(f'Test Loss: {test_loss.item():.4f}')
 linear_model.reset_hidden_states()
 
 x_seq = torch.tensor(x_sequences)
-model_rollout = linear_model(x_seq)
+linear_model_rollout = linear_model(x_seq)
+ff_model_rollout = ff_model(x_seq)
 
 # Plot results
-plt.plot(t_space, x, label='True Position')
+plt.plot(t_space, x, 'k', label='True Position')
 #plt.plot(t_space, z, '-r', label='Nuisance Variable')
 plt.plot(t_space, y, 'm', label='Observations')
 plt.plot(t_space, x_hat, 'g', label = 'Kalman Estimate ', linestyle='--')
-plt.plot(t_space[window_size:], model_rollout.detach().numpy(), 'r', label = 'Network Estimate', linestyle='--')
+plt.plot(t_space[window_size:], linear_model_rollout.detach().numpy(), 'r', label = 'Adaptive Network Estimate', linestyle='--')
+plt.plot(t_space[window_size:], ff_model_rollout.detach().numpy(), 'b', label = 'FF Network Estimate', linestyle='--')
+
 #plt.ylim([-3, 3])
 plt.xlabel('Time')
 plt.ylabel('Position')

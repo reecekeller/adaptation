@@ -79,15 +79,15 @@ if __name__ == "__main__":
     # Noise Parameters
     var_x = 0.1
     var_z = 0.2
-    var_y = 0.1
+    var_y = 0.15
     
     # Define and Simulate System Dynamics
     A = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 0.01]])
-    H = np.array([1.0, 0.0, 0.6]).reshape((1, 3))
+    H = np.array([3.0, 0.0, 0.5]).reshape((1, 3))
     Q = np.diag([var_x, var_x, var_z])
     R = np.array([[var_y]])
     
-    initial_state = np.array([0, 0, 0]).reshape((1, 3))
+    initial_state = np.array([0.0, 0.0, 0.0]).reshape((1, 3))
     initial_covariance = np.diag([0.01, 0.25, 0.01])
     state_vec = dynamics(initial_state, t_space, A, dt, var_x, var_z)
   
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     plt.plot(t_space, y, 'm', label='Observations')
     plt.plot(t_space, x_hat, 'g', label = 'Filtered ', linestyle='--')
     
-    plt.ylim([-3, 3])
+   # plt.ylim([-3, 3])
     plt.xlabel('Time')
     plt.ylabel('Value')
     plt.title('1D Oscillatory System')

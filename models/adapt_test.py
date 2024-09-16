@@ -7,7 +7,7 @@ Created on Tue May  7 10:39:16 2024
 
 import numpy as np
 import matplotlib.pyplot as plt
-from models.adapter_full import *
+from adapter_full import *
 
 # Define parameters
 time = np.linspace(0, 15, 1000)  # Time from 0 to 15 with 1000 points

@@ -14,14 +14,13 @@ class AdaptingLayer(nn.Module):
         super(AdaptingLayer, self).__init__()
         self.input_dim = input_dim
         self.output_dim = output_dim
-        
-        #self.W = nn.Parameter(torch.ones(output_dim, input_dim, dtype=torch.float64))
-        #self.b = nn.Parameter(torch.zeros(output_dim, dtype=torch.float64))
 
         self.linear_layer = nn.Linear(input_dim, output_dim)
-        self.F = nn.Parameter(torch.full((output_dim,), 0.8, dtype=torch.float64))  # Learnable F parameter
-        self.tau = nn.Parameter(torch.full((output_dim,), 0.03, dtype=torch.float64))  # Learnable tau parameter
+        self.F = nn.Parameter(torch.full((output_dim,), 0.0, dtype=torch.float64))  # Learnable F parameter
+        self.tau = nn.Parameter(torch.full((output_dim,), 0.0, dtype=torch.float64))  # Learnable tau parameter
         
+        #self.F = torch.full((output_dim,), 0.0, dtype=torch.float64)
+        #self.tau = torch.full((output_dim,), 0.0, dtype=torch.float64)
         ## Remove init for comparing against exp filter
         #nn.init.xavier_normal_(self.W)
         #nn.init.constant_(self.b, 0)
@@ -90,8 +89,8 @@ class AdaptingMLP(nn.Module):
         #     self.output_layer.bias.copy_(torch.tensor(0))
     def forward(self, x):
         x = self.layers(x)
-        logits = self.output_layer(x.to(torch.float64))
-        return logits
+        x = self.output_layer(x.to(torch.float64))
+        return x
     
     def reset_hidden_states(self):
         """Reset the states of all adapting layers in the network."""
