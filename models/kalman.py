@@ -40,8 +40,8 @@ def dynamics(initial_state, t_space, A, dt, var_x, var_z):
     return x
 
 def observations(H, states, var_y):
-#    y = [H @ state + np.random.normal(0, var_y) for state in states] 
-    y = [H @ state for state in states] 
+    y = [H @ state + np.random.normal(0, var_y) for state in states] 
+#    y = [H @ state for state in states] 
 
     return np.array(y)
 

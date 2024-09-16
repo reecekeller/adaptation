@@ -15,7 +15,7 @@ var_y = 0.1
 
 # Define and Simulate System Dynamics
 A = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 0.01]])
-H = np.array([3.0, 0.0, 0.6]).reshape((1, 3))
+H = np.array([1.0, 1.0, 1.0]).reshape((1, 3))
 Q = np.diag([var_x, var_x, var_z])
 R = np.array([[var_y]])
 
@@ -39,7 +39,7 @@ z_hat = state_hat[:, 2]
 
 # Data Preparation
 # Create input-output pairs for time series prediction
-window_size = 10  # Define the size of the window for time series prediction
+window_size = 1  # Define the size of the window for time series prediction
 def create_sequences(data, window_size):
     sequences = []
     targets = []
@@ -63,11 +63,11 @@ obs_test = torch.tensor(x_sequences[split_idx:])
 
 # Define Adapting Network
 input_dim = window_size
-hidden_layers = [10]
+hidden_layers = [2]
 output_dim = 1
 
 learning_rate = 0.01
-num_epochs = 1000
+num_epochs = 5000
 
 linear_model = AdaptingMLP(input_dim, hidden_layers, output_dim)
 ff_model = linearNN(input_dim, hidden_layers, output_dim)
@@ -75,7 +75,7 @@ ff_model = linearNN(input_dim, hidden_layers, output_dim)
 criterion = nn.MSELoss()
 optimizer1 = optim.Adam(linear_model.parameters(), lr=learning_rate)
 optimizer2 = optim.Adam(ff_model.parameters(), lr=learning_rate)
-.
+
 #Training loop
 linear_model.train()
 for epoch in range(num_epochs):
@@ -146,11 +146,12 @@ data_for_boxplot = [list(v) for v in all_F]
 plt.figure(figsize=(10, 6))
 
 plt.boxplot(data_for_boxplot, positions=np.arange(1, len(all_F) + 1))
+
 # Customize the plot
 plt.xlabel('Layer')
 plt.ylabel('Tau')
 plt.title('Adaptation Threshold Distribution Across Layers')
-plt.xticks(np.arange(1, len(all_F) + 1), labels=np.arange(1, len(all_tau) + 1))  # Set x-axis ticks and labels
+plt.xticks(np.arange(1, len(all_F) + 1), labels=np.arange(1, len(all_F) + 1))  # Set x-axis ticks and labels
 plt.grid(True)
 
 # Show plot
