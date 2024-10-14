@@ -16,9 +16,12 @@ class AdaptingLayer(nn.Module):
         self.output_dim = output_dim
 
         self.linear_layer = nn.Linear(input_dim, output_dim)
-        self.F = nn.Parameter(torch.full((output_dim,), 0.7, dtype=torch.float64))  # Learnable F parameter
-        self.tau = nn.Parameter(torch.full((output_dim,), 0.96, dtype=torch.float64))  # Learnable tau parameter
+        #self.F = torch.full((output_dim,), 0.7, dtype=torch.float64)  # Learnable F parameter
+        #self.tau = torch.full((output_dim,), 0.96, dtype=torch.float64)  # Learnable tau parameter
     
+        self.F = torch.tensor(0.7, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
+        self.tau = torch.tensor(0.96, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
+
         self.register_buffer('prev_y', None)
         self.register_buffer('prev_a', None)
 
