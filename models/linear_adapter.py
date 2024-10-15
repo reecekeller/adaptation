@@ -16,11 +16,11 @@ class AdaptingLayer(nn.Module):
         self.output_dim = output_dim
 
         self.linear_layer = nn.Linear(input_dim, output_dim)
-        #self.F = torch.full((output_dim,), 0.7, dtype=torch.float64)  # Learnable F parameter
-        #self.tau = torch.full((output_dim,), 0.96, dtype=torch.float64)  # Learnable tau parameter
+        self.F = nn.Parameter(torch.full((output_dim,), 0.7, dtype=torch.float64))  # Learnable F parameter
+        self.tau = nn.Parameter(torch.full((output_dim,), 0.96, dtype=torch.float64)) # Learnable tau parameter
     
-        self.F = torch.tensor(0.7, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
-        self.tau = torch.tensor(0.96, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
+        #self.F = torch.tensor(0.7, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
+        #self.tau = torch.tensor(0.96, dtype=torch.float64, requires_grad=False)  # Learnable F parameter
 
         self.register_buffer('prev_y', None)
         self.register_buffer('prev_a', None)
@@ -31,17 +31,18 @@ class AdaptingLayer(nn.Module):
     def forward(self, x):
         out = self.linear_layer(x)
         ## Clamping tau to ensure stability
-        #self.tau.data = torch.clamp(self.tau.data, min=0.01, max=0.05)
-        #self.F.data = torch.clamp(self.F.data, min=1e-1, max=1.0)
-
+        self.tau.data = torch.clamp(self.tau.data, min=0.1, max=0.99)
+        self.F.data = torch.clamp(self.F.data, min=0.1, max=0.99)
+        #print(out.shape)
         batch_size = x.size(0)
+        feature_size = self.linear_layer.out_features
 
-        # Initialize state a and y with zeros on the first forward pass
-        if self.prev_a is None:
-            self.prev_a = torch.zeros(batch_size, self.linear_layer.out_features).to(x.device)
-        if self.prev_y is None:
-            self.prev_y = torch.zeros(batch_size, self.linear_layer.out_features).to(x.device)
-    
+        # Initialize state a and y with zeros on the first forward pass or if batch size changes
+        if self.prev_a is None or self.prev_a.size(0) != batch_size:
+            self.prev_a = torch.zeros(batch_size, feature_size).to(x.device)
+        if self.prev_y is None or self.prev_y.size(0) != batch_size:
+            self.prev_y = torch.zeros(batch_size, feature_size).to(x.device)
+
        # a = self.prev_a + self.tau * (-self.prev_a + self.F * self.prev_y)
         #y = out - a
         a =self.tau * self.prev_a + (1-self.tau)*self.prev_y
